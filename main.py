@@ -1,5 +1,24 @@
+import subprocess
 from src.device_utils import wait_for_device
 from src.partition_utils import list_byname_partitions, detect_ab_device
+
+def detect_current_slot():
+    """
+    Returns the current A/B slot suffix without underscore, e.g. 'a' or 'b'.
+    """
+    try:
+        output = subprocess.check_output([
+            "adb", "shell", "getprop ro.boot.slot_suffix"
+        ], stderr=subprocess.DEVNULL)
+        slot = output.decode().strip()
+        # slot_suffix might be '_a' or 'a'
+        slot = slot.lstrip('_')
+        if slot in ('a', 'b'):
+            return slot
+    except Exception:
+        pass
+    return ''
+
 
 def parse_selection(selection, max_index):
     """
@@ -38,14 +57,17 @@ def main():
         print("No partitions found to back up.")
         return
 
-    # If dynamic 'super' partition exists, expose logical partitions via /dev/block/mapper
+    # Handle dynamic 'super' partition with logical mappings
     if 'super' in partitions:
         print("[+] Detected dynamic partitions (super). Adding logical partitions from /dev/block/mapper...")
+        is_ab = detect_ab_device(partitions)
+        suffix = ''
+        if is_ab:
+            slot = detect_current_slot()
+            if slot:
+                suffix = f"_{slot}"
         for name in ('system', 'vendor', 'product', 'system_ext'):
-            mapper_path = f"/dev/block/mapper/{name}"
-            # only add if mapper device exists
-            # note: assume presence; adjust detection if needed
-            partitions[name] = mapper_path
+            partitions[name] = f"/dev/block/mapper/{name}{suffix}"
 
     is_ab = detect_ab_device(partitions)
     print(f"[+] Detected partition type: {'A/B' if is_ab else 'A-only'}")
