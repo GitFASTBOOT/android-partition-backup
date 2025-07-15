@@ -41,16 +41,16 @@ Whether you're:
 
 ## 📁 Project Structure
 
-\`\`\`
+```bash
 android-partition-backup/
-├── main.py                # Entry point
+├── main.py                # Entry point with interactive selection prompt
 ├── src/
 │   ├── __init__.py
 │   ├── adb_utils.py       # adb shell/pull/delete helpers
 │   ├── device_utils.py    # ADB device connection wait
-│   ├── partition_utils.py # Partition listing and dumping logic
+│   ├── partition_utils.py # Partition listing logic
 │   └── backup.py          # Partition filtering, pulling, and cleanup
-\`\`\`
+``` 
 
 ---
 
@@ -65,82 +65,77 @@ android-partition-backup/
 ## 🚀 Usage
 
 1. **Clone the repository**:
-   \`\`\`bash
+   ```bash
    git clone https://github.com/GitFASTBOOT/android-partition-backup.git
    cd android-partition-backup
-   \`\`\`
-
+   ```
 2. **Run the backup tool**:
-   \`\`\`bash
+   ```bash
    python3 main.py
-   \`\`\`
+   ```
+3. **Follow the interactive prompts**:
+   - The tool will wait for your device and detect A/B or A-only layout.
+   - It will list partitions with indices:
+     ```
+     [+] Detected partition type: A/B
 
-3. 🎉 Sit back and relax! The tool will:
-   - Wait for device connection
-   - List available partitions
-   - Detect A/B layout (or A-only)
-   - Dump partitions via `dd` to `/sdcard`
-   - Pull them to your PC inside `android_backup/`
-   - Delete temp files from the device
-
----
-
-## 📦 Output Example
-
-After a successful run, your output will look like:
-
-\`\`\`
-android_backup/
-├── boot.img
-├── vbmeta.img
-├── recovery.img
-├── system.img
-├── ... and more
-\`\`\`
+     Available partitions:
+       1. super -> /dev/block/bootdevice/by-name/super
+       3. boot -> /dev/block/bootdevice/by-name/boot
+       4. userdata -> /dev/block/bootdevice/by-name/userdata
+     ```
+   - **Select partitions**:
+     - **Single**: `2` to back up only the vendor partition.
+     - **Multiple**: `1,3,4` to select system, boot, and userdata.
+     - **Ranges**: `2-4` to back up vendor through userdata.
+     - **All**: `all` or press Enter to back up every partition.
+   - The script supports parsing comma-separated values and ranges (e.g., `1,3-5,7`).
+   - If no valid input is provided, it defaults to backing up all partitions.
+4. 🎉 **Backup output**:
+   - You’ll see a confirmation:
+     ```
+     Selected partitions: system, boot, userdata
+     ```
+   - Images are saved under `android_backup/`:
+     ```bash
+     android_backup/
+     ├── system.img
+     ├── boot.img
+     ├── userdata.img
+     └── ...
+     ```
 
 ---
 
 ## 🚫 Exclusions
 
-For safety, the tool **skips** the following by default:
-- `userdata` (usually encrypted and very large)
-- `mmcblk0` devices (raw blocks)
-
----
-
-## 🧠 Tips
-
-- Make sure your device is in **ADB mode with root access**.
-- Use `adb shell su` to enable root on adb
-- You can edit `backup.py` to include or exclude specific partitions.
+By default, the tool **skips**:
+- `userdata` (usually encrypted and very large) — unless explicitly selected.
+- Raw block devices like `mmcblk0*`.
 
 ---
 
 ## 🧩 Customization
 
-Want to tweak the tool?
-- Change exclusion logic in `src/backup.py`
-- Modify partition filtering in `src/partition_utils.py`
-- Log to file? Add logging instead of print.
-- Convert to a CLI tool with `argparse`? Easy to extend!
+- Adjust exclusion logic in `src/backup.py`.
+- Modify partition filtering in `src/partition_utils.py`.
+- Want a non-interactive CLI? Integrate `argparse` for scripted use.
 
 ---
 
 ## 🛡 Disclaimer
 
-> ⚠️ Use this tool responsibly. Backing up and dumping partitions can expose sensitive information.  
-> Always test on devices you own or have permission to modify.
+> ⚠️ Use responsibly. Backing up partitions can expose sensitive data. Only run on devices you own or have permission to modify.
 
 ---
 
 ## 🤝 Contribute
 
-Pull requests and issues are welcome!  
-Got a feature request? Open an issue or fork and send a PR.
+Pull requests and issues are welcome! Fork, tweak, and send a PR with your improvements.
 
 ---
 
 ## 💬 Author
 
-Made with ❤️ by [GitFASTBOOT]  
-Feel free to reach out or suggest improvements.
+Made with ❤️ by [GitFASTBOOT]
+
