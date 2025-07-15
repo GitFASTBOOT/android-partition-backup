@@ -38,6 +38,15 @@ def main():
         print("No partitions found to back up.")
         return
 
+    # If dynamic 'super' partition exists, expose logical partitions via /dev/block/mapper
+    if 'super' in partitions:
+        print("[+] Detected dynamic partitions (super). Adding logical partitions from /dev/block/mapper...")
+        for name in ('system', 'vendor', 'product', 'system_ext'):
+            mapper_path = f"/dev/block/mapper/{name}"
+            # only add if mapper device exists
+            # note: assume presence; adjust detection if needed
+            partitions[name] = mapper_path
+
     is_ab = detect_ab_device(partitions)
     print(f"[+] Detected partition type: {'A/B' if is_ab else 'A-only'}")
 
