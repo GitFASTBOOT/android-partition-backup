@@ -1,141 +1,151 @@
 # 🚀 Android Partition Backup Tool
 
-**Safely dump and backup all Android partitions over ADB with one command!**  
-This Python-based tool helps you pull critical partitions from your rooted Android device using `adb` + `dd`, automatically organizing them on your PC.
+Safely dump and backup all Android partitions over ADB with one command!  
+This Python-based tool lets you pull critical partitions from your rooted Android device using `adb` + `dd`, automatically organizing them on your PC.
 
 ---
 
 ## 🎥 Demo
 
-![Demo GIF](https://github.com/GitFASTBOOT/android-partition-backup/raw/main/assets/test.gif)
+### 🔹 CLI Demo  
+![CLI Demo GIF](https://github.com/GitFASTBOOT/android-partition-backup/raw/main/assets/cli.gif)  
+![CLI Demo PNG](https://github.com/GitFASTBOOT/android-partition-backup/raw/main/assets/cli.png)
 
-## 🖼 Screenshot
-
-![Static Image](https://github.com/GitFASTBOOT/android-partition-backup/raw/main/assets/test.png)
-
-[⬇️ Download test.gif](https://github.com/GitFASTBOOT/android-partition-backup/raw/main/assets/test.gif)  
-[⬇️ Download test.png](https://github.com/GitFASTBOOT/android-partition-backup/raw/main/assets/test.png)
+### 🔹 GUI Demo  
+![GUI Demo GIF](https://github.com/GitFASTBOOT/android-partition-backup/raw/main/assets/gui.gif)  
+![GUI Demo PNG](https://github.com/GitFASTBOOT/android-partition-backup/raw/main/assets/gui.png)
 
 ---
 
 ## 🔧 Features
 
-✅ Fully automated ADB device detection  
-✅ Lists partitions dynamically from `/dev/block/by-name`  
-✅ Detects A-only and A/B partition schemes  
-✅ Dumps partitions using `dd` (requires root access)  
-✅ Pulls images from device and cleans up afterward  
+- ✅ Fully automated ADB device detection  
+- ✅ Lists partitions dynamically from `/dev/block/by-name` and `/dev/block/mapper`  
+- ✅ Detects A-only and A/B partition schemes  
+- ✅ Dumps partitions using `dd` (requires root access)  
+- ✅ Pulls partition images to your PC and cleans up device afterward  
+
+### 🖥 GUI Features
+- Interactive partition selection (checkboxes)  
+- Partition search filter  
+- Total and selected partition size display  
+- Lets you choose the backup directory  
+- Dynamically detects common partitions: `system`, `vendor`, `product`, `odm`, `system_ext`  
+- Detects and supports A/B slot suffixes  
 
 ---
 
 ## 🧠 Why use this?
 
 Whether you're:
-- A developer dumping boot, vendor, and system images for modding or analysis,
-- A tinkerer creating a fail-safe image set before flashing,
-- Or just want fine control over what gets backed up from your device...
+- A developer dumping boot/vendor/system images for modding or analysis  
+- A tinkerer creating a full backup before flashing  
+- Someone who wants fine control over what gets backed up...  
 
-**This tool gives you simple, scriptable control with readable Python logic.**
+This tool gives you simple, scriptable control using clean, readable Python logic.
 
 ---
 
 ## 📁 Project Structure
 
-```bash
+```
 android-partition-backup/
-├── main.py                # Entry point with interactive selection prompt
-├── src/
-│   ├── __init__.py
-│   ├── adb_utils.py       # adb shell/pull/delete helpers
-│   ├── device_utils.py    # ADB device connection wait
-│   ├── partition_utils.py # Partition listing logic
-│   └── backup.py          # Partition filtering, pulling, and cleanup
-``` 
+├── main.py                # CLI mode entry point
+├── gui.py                 # GUI app (with ttkbootstrap interface)
+├── requirements.txt       # Python dependencies
+├── assets/                # Demo GIFs and images
+└── src/
+    ├── __init__.py
+    ├── adb_utils.py       # ADB command helpers
+    ├── backup.py          # Partition filtering, pulling, cleanup
+    ├── device_utils.py    # ADB device connection
+    ├── partition_utils.py # Partition listing logic
+    └── selection_utils.py # CLI selection handler
+```
 
 ---
 
-## ⚙️ Requirements
+## 📦 Requirements
 
-- ✅ Python 3.6+
-- ✅ `adb` installed and available in your system's `PATH`
-- ⚠️ **Rooted device** (this script uses `su` with `dd`)
+### System
+- Python 3.8+  
+- ADB installed and in your system PATH  
+- Rooted Android device with USB debugging enabled  
+
+### Python Packages
+- `ttkbootstrap >= 1.10.1`  
+- `Pillow >= 10.3.0`  
+- `adb-shell >= 0.4.4`  
+- `psutil >= 5.9.8`  
+
+Install all with:
+
+```
+pip install -r requirements.txt
+```
 
 ---
 
 ## 🚀 Usage
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/GitFASTBOOT/android-partition-backup.git
-   cd android-partition-backup
-   ```
-2. **Run the backup tool**:
-   ```bash
-   python3 main.py
-   ```
-3. **Follow the interactive prompts**:
-   - The tool will wait for your device and detect A/B or A-only layout.
-   - It will list partitions with indices:
-     ```
-     [+] Detected partition type: A/B
+1. **Clone the Repository**  
+```bash
+git clone https://github.com/GitFASTBOOT/android-partition-backup.git
+cd android-partition-backup
+```
 
-     Available partitions:
-       1. super -> /dev/block/bootdevice/by-name/super
-       3. boot -> /dev/block/bootdevice/by-name/boot
-       4. userdata -> /dev/block/bootdevice/by-name/userdata
-     ```
-   - **Select partitions**:
-     - **Single**: `2` to back up only the vendor partition.
-     - **Multiple**: `1,3,4` to select system, boot, and userdata.
-     - **Ranges**: `2-4` to back up vendor through userdata.
-     - **All**: `all` or press Enter to back up every partition.
-   - The script supports parsing comma-separated values and ranges (e.g., `1,3-5,7`).
-   - If no valid input is provided, it defaults to backing up all partitions.
-4. 🎉 **Backup output**:
-   - You’ll see a confirmation:
-     ```
-     Selected partitions: system, boot, userdata
-     ```
-   - Images are saved under `android_backup/`:
-     ```bash
-     android_backup/
-     ├── system.img
-     ├── boot.img
-     ├── userdata.img
-     └── ...
-     ```
+2. **Install Dependencies**  
+```bash
+pip install -r requirements.txt
+```
+
+3. **Run the Tool**  
+
+**GUI Mode:**  
+```bash
+python gui.py
+```
+
+**CLI Mode:**  
+```bash
+python main.py
+```
 
 ---
 
-## 🚫 Exclusions
+## 🚫 Exclusions (by default)
 
-By default, the tool **skips**:
-- `userdata` (usually encrypted and very large) — unless explicitly selected.
-- Raw block devices like `mmcblk0*`.
+- `userdata` — usually encrypted and very large  
+- Raw block devices like `mmcblk0*`  
+
+You can always modify the logic if you want to include them.
 
 ---
 
 ## 🧩 Customization
 
-- Adjust exclusion logic in `src/backup.py`.
-- Modify partition filtering in `src/partition_utils.py`.
-- Want a non-interactive CLI? Integrate `argparse` for scripted use.
+Want to tweak behavior?
+- Edit `src/backup.py` to change exclusion logic  
+- Modify `src/partition_utils.py` to customize how partitions are filtered  
+- Add `argparse` to `main.py` for fully scripted non-interactive backups  
 
 ---
 
-## 🛡 Disclaimer
+## ⚠️ Safety Notes
 
-> ⚠️ Use responsibly. Backing up partitions can expose sensitive data. Only run on devices you own or have permission to modify.
+- Requires unlocked bootloader and root access  
+- Backup files may contain sensitive personal data  
+- Skips risky or very large partitions by default for safety  
 
 ---
 
 ## 🤝 Contribute
 
-Pull requests and issues are welcome! Fork, tweak, and send a PR with your improvements.
+Pull requests and issues are welcome!  
+Fork the repo, improve the tool, and send a PR.
 
 ---
 
 ## 💬 Author
 
-Made with ❤️ by [GitFASTBOOT]
-
+Made with ❤️ by [GitFASTBOOT](https://github.com/GitFASTBOOT)

@@ -27,3 +27,12 @@ def dump_partition(part_name, full_path):
     adb_shell(f"su -c 'dd if={full_path} of={output_file}'")
     return output_file
 
+def get_partition_size(path):
+    try:
+        cmd = f"su -c 'blockdev --getsize64 {path}'"
+        output = adb_shell(cmd)
+        size_bytes = int(output)
+        size_mb = size_bytes / (1024 * 1024)
+        return size_mb, f"{size_mb:.1f}MB"
+    except Exception:
+        return 0, "Unknown"

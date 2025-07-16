@@ -1,0 +1,29 @@
+# Core Requirements
+ttkbootstrap==1.10.1
+Pillow==10.3.0
+adb-shell==0.4.4
+psutil==5.9.8  # For better system monitoring
+
+# CLI Enhancements
+colorama==0.4.6  # For colored console output
+tqdm==4.66.2    # For progress bars in CLI
+
+# Optional GUI Enhancements
+pywin32==306; sys_platform == 'win32'  # Windows-specific enhancements
+pyobjc==10.2; sys_platform == 'darwin' # macOS-specific enhancements
+
+# Development & Testing
+pytest==8.1.1
+pytest-cov==4.1.0
+pytest-mock==3.14.0
+flake8==7.0.0
+black==24.3.0
+mypy==1.9.0
+
+# Documentation
+mkdocs==1.5.3
+mkdocs-material==9.5.3
+
+# Packaging
+pyinstaller==6.5.0  # For creating executables
+twine==4.0.2       # For PyPI uploads
